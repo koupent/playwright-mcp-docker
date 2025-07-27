@@ -1,5 +1,5 @@
-# デフォルト設定: Gitにテキストファイルの自動判別と改行コードの自動変換を任せる
+# Default settings: Let Git automatically detect text files and convert line endings
 * text=auto
 
-# シェルスクリプト (.sh) は常にLF改行コードを使用する
+# Shell scripts (.sh) should always use LF line endings
 *.sh eol=lf
