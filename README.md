@@ -22,17 +22,21 @@
 
 ```mermaid
 flowchart TD
-  subgraph Client["クライアント"]
-    VSCode["VSCode/Cline/Claude Code"]
-    WebBrowser["Webブラウザ (noVNC)"]
-    VNCClient["VNCクライアント"]
+  subgraph HostPC["ホストPC (Windows/Linux/macOS)"]
+    subgraph Client["クライアント"]
+      subgraph DevContainer["DevContainer環境"]
+        ClaudeCode["Claude Code"]
+      end
+      WebBrowser["Webブラウザ (noVNC)"]
+      VNCClient["VNCクライアント"]
+    end
+
+    subgraph HostOS["ホストOS"]
+      Docker["Docker"]
+    end
   end
 
-  subgraph Host["ホストOS (Windows/Linux/macOS)"]
-    Docker["Docker"]
-  end
-
-  subgraph Container["Dockerコンテナ"]
+  subgraph PlaywrightContainer["Playwright MCP コンテナ"]
     direction TB
     MCP["Playwright MCP サーバー"]
     Chrome["Chrome (ブラウザ)"]
@@ -41,8 +45,8 @@ flowchart TD
     Desktop["Xfce デスクトップ"]
   end
 
-  %% MCP接続
-  VSCode -- "SSE/HTTP (ポート9222)" --> MCP
+  %% MCP接続 (コンテナtoコンテナ)
+  ClaudeCode -- "SSE/HTTP (host.docker.internal:9222)" --> MCP
   MCP -- "ブラウザ操作" --> Chrome
 
   %% VNC接続
@@ -55,23 +59,23 @@ flowchart TD
   Chrome -- "GUI表示" --> Desktop
 
   %% ホスト環境
-  Host -- "Docker管理" --> Container
-
-  %% 間接接続
-  VSCode -. "host.docker.internal/localhost経由" .-> MCP
-  WebBrowser -. "localhost:8080" .-> noVNC
-  VNCClient -. "localhost:5901" .-> VNCServer
+  HostOS -- "Docker管理" --> PlaywrightContainer
+  HostOS -- "Docker管理" --> Client
 
   %% スタイル
   classDef mcp fill:#e1f5fe
   classDef vnc fill:#f3e5f5
   classDef browser fill:#e8f5e8
   classDef client fill:#fff3e0
+  classDef devcontainer fill:#fce4ec
+  classDef hostpc fill:#f0f8ff
 
   class MCP,noVNC mcp
   class VNCServer,Desktop vnc
   class Chrome browser
-  class VSCode,WebBrowser,VNCClient client
+  class WebBrowser,VNCClient client
+  class ClaudeCode devcontainer
+  class HostPC hostpc
 ```
 
 ### ポート構成
